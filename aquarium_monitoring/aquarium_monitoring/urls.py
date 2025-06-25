@@ -21,6 +21,7 @@ from am_app import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
+    path('api/latest/', views.get_latest_data, name='api-latest'),
     # path('', views.dashboard, name='dashboard'),
-    path('api/receive-data/', views.receive_data, name='receive_data'),
+    # path('api/receive-data/', views.receive_data, name='receive_data'),
 ]

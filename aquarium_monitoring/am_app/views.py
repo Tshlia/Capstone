@@ -3,17 +3,29 @@ from .models import WaterLevel
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django.utils.timezone import localtime
 
 def index(request):
-    latest_data = WaterLevel.objects.order_by('-timestamp').first()
+    # latest_data = WaterLevel.objects.order_by('-timestamp').first()
+    latest_data = WaterLevel.objects.latest('timestamp')
     context = {
         'data': latest_data
     }
     return render(request, 'am_app/index.html', {'data': latest_data})
 
-# def dashboard(request):
-#     measurements = WaterLevel.objects.all().order_by('-timestamp')[:20]
-#     return render(request, 'am_app/dashboard.html', {'measurements': measurements})
+def get_latest_data(request):
+    try:
+        latest_data = WaterLevel.objects.latest('timestamp')
+        data = {
+            'distance': latest_data.distance,
+            'ph_value': latest_data.ph_value,
+            'tds_value': latest_data.tds_value,
+            'timestamp': localtime(latest_data.timestamp).strftime('%B %d, %Y, %I:%M %p')
+        }
+        return JsonResponse(data)
+    except WaterLevel.DoesNotExist:
+        return JsonResponse({'error': 'No data available'}, status=404)
+
 
 @csrf_exempt
 def receive_data(request):
